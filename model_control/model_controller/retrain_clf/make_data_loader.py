@@ -1,6 +1,5 @@
 from numpy import ndarray
 import numpy as np
-from sklearn.utils import shuffle
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
@@ -14,7 +13,8 @@ class ModelDataset(Dataset):
 
     def __getitem__(self, index):
         x = torch.tensor(self.x[index:index+1, :]).float()
-        y = torch.tensor(self.y[index]).float()
+        if self.y is not None:
+            y = torch.tensor(self.y[index]).long()
         return x, y
 
     def __len__(self):
@@ -25,7 +25,7 @@ class MakeLoader:
     def __init__(self, x, y, config={}) -> None:
         shuffle = config["shuffle"] if "shuffle" in config.keys() else True
         batch_size = config["batch_size"] if "batch_size" in config.keys(
-        ) else 5
+        ) else 1
         self.dataset = ModelDataset(x, y)
         self.dataloader = DataLoader(
             self.dataset, batch_size=batch_size, shuffle=shuffle)
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     xx = np.random.random((n_sample, input_size))
     yy = np.random.random(n_sample,)
 
-    dataloader = MakeLoader(xx, yy).get_loader()
+    dataloader = MakeLoader(xx, yy, config={"batch_size": 15}).get_loader()
 
     with torch.no_grad():
         for epoch in range(10):
