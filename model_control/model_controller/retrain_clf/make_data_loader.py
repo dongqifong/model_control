@@ -1,7 +1,6 @@
 from numpy import ndarray
 import numpy as np
 import torch
-import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 
 
@@ -21,18 +20,26 @@ class ModelDataset(Dataset):
         return len(self.x)
 
 
-class MakeLoader:
-    def __init__(self, x, y, config={}) -> None:
-        shuffle = config["shuffle"] if "shuffle" in config.keys() else True
-        batch_size = config["batch_size"] if "batch_size" in config.keys(
-        ) else 1
-        self.dataset = ModelDataset(x, y)
-        self.dataloader = DataLoader(
-            self.dataset, batch_size=batch_size, shuffle=shuffle)
-        return None
+# class MakeLoader:
+#     def __init__(self, x, y, config={}) -> None:
+#         shuffle = config["shuffle"] if "shuffle" in config.keys() else True
+#         batch_size = config["batch_size"] if "batch_size" in config.keys(
+#         ) else 1
+#         self.dataset = ModelDataset(x, y)
+#         self.dataloader = DataLoader(
+#             self.dataset, batch_size=batch_size, shuffle=shuffle)
+#         return None
 
-    def get_loader(self):
-        return self.dataloader
+#     def get_loader(self):
+#         return self.dataloader
+
+
+def get_loader(x, y, config={}):
+    shuffle = config["shuffle"] if "shuffle" in config.keys() else True
+    batch_size = config["batch_size"] if "batch_size" in config.keys() else 1
+    dataset = ModelDataset(x, y)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+    return dataloader
 
 
 if __name__ == "__main__":
@@ -44,7 +51,8 @@ if __name__ == "__main__":
     xx = np.random.random((n_sample, input_size))
     yy = np.random.random(n_sample,)
 
-    dataloader = MakeLoader(xx, yy, config={"batch_size": 15}).get_loader()
+    # dataloader = MakeLoader(xx, yy, config={"batch_size": 15}).get_loader()
+    dataloader = get_loader(xx, yy, config={"batch_size": 15})
 
     with torch.no_grad():
         for epoch in range(10):

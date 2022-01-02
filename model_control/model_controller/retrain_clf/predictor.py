@@ -1,13 +1,14 @@
 import numpy as np
 import torch
-from make_data_loader import MakeLoader
-from test_model import ModelMonitor
+
+from .make_data_loader import get_loader
+from .test_model import ModelMonitor
 
 
 def predict(model, x: np.ndarray, batch_size=1):
     dummy_y = np.random.random((len(x)))
-    test_loader = MakeLoader(
-        x, dummy_y, config={"batch_size": batch_size}).get_loader()
+    test_loader = get_loader(
+        x, dummy_y, config={"batch_size": batch_size})
     y_pred = []
     with torch.no_grad():
         for batch_idx, (x, y) in enumerate(test_loader):

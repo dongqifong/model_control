@@ -1,13 +1,16 @@
 import abc
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from make_data_loader import MakeLoader
-import trainer
-import predictor
-import saver
-from test_model import ModelMonitor
+
+from .make_data_loader import get_loader
+from . import trainer
+from . import predictor
+from . import saver
+from .test_model import ModelMonitor
+from ...evaluation.metrics import MCC
 
 
 class ControllerBase(abc.ABC):
@@ -63,15 +66,16 @@ class ModelController(ControllerBase):
         ) else config["batch_size"]
         loader_config["shuffle"] = True if "shuffle" not in config.keys(
         ) else config["shuffle"]
-        self.train_loader = MakeLoader(self.train_x, self.train_y)
+        self.train_loader = get_loader(self.train_x, self.train_y)
         if self.valid_x is not None and self.valid_y is not None:
-            self.valid_loader = MakeLoader(self.valid_x, self.valid_y)
+            self.valid_loader = get_loader(
+                self.valid_x, self.valid_y)
 
         if "model_name" in config.keys():
             self.model_name = config["model_name"]
         return None
 
-    def train(self, epochs, verbose=1, period_show=1):
+    def train(self, epochs=1, verbose=1, period_show=1):
         trainer.train(epochs=epochs, model=self.model, optimizer=self.optimizer, loss_func=self.loss_func,
                       train_loader=self.train_loader, valid_loader=self.valid_loader, train_loss=self.train_loss, valid_loss=self.valid_loss, verbose=verbose, period_show=period_show)
         return None
@@ -85,4 +89,31 @@ class ModelController(ControllerBase):
         return None
 
     def evaluate(self, y_true: np.ndarray, y_pred: np.ndarray):
-        return None
+        score = MCC.evaluate(y_true, y_pred)
+        return score
+
+
+if __name__ == "__main__":
+
+    n_sample = 30
+    input_size = 51200
+
+    train_x = np.random.random((n_sample, input_size))
+    train_y = np.random.choice(2, n_sample)
+
+    valid_x = np.random.random((n_sample, input_size))
+    valid_y = np.random.choice(2, n_sample)
+
+    model_controller = ModelController(train_x, train_y, valid_x, valid_y)
+    model_controller.build()
+    model_controller.compile({"model_name": "test_model"})
+    model_controller.train(5)
+    y_pred = model_controller.predict(train_x, batch_size=5)
+    # model_controller.save()
+    score = model_controller.evaluate(train_y, y_pred)
+
+    print(model_controller.model_name)
+    print(model_controller.model)
+    print(model_controller.train_loader)
+    print(model_controller.valid_loader)
+    print(score)

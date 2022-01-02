@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
 
 
 def train_one_epoch(model, optimizer, loss_func, train_loader):
@@ -51,7 +50,7 @@ def train(epochs, model, optimizer, loss_func, train_loader, valid_loader=None, 
 
 if __name__ == "__main__":
     import numpy as np
-    from make_data_loader import MakeLoader
+    from make_data_loader import get_loader
     from test_model import ModelMonitor
     model = ModelMonitor()
 
@@ -60,13 +59,13 @@ if __name__ == "__main__":
 
     train_x = np.random.random((n_sample, input_size))
     train_y = np.random.random(n_sample,)
-    train_loader = MakeLoader(train_x, train_y, config={
-        "batch_size": 15}).get_loader()
+    train_loader = get_loader(train_x, train_y, config={
+        "batch_size": 15})
 
     valid_x = np.random.random((n_sample, input_size))
     valid_y = np.random.random(n_sample,)
-    valid_loader = MakeLoader(
-        valid_x, valid_y, config={"batch_size": 15}).get_loader()
+    valid_loader = get_loader(
+        valid_x, valid_y, config={"batch_size": 15})
 
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     loss_func = nn.CrossEntropyLoss()
