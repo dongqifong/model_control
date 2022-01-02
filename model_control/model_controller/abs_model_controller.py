@@ -4,6 +4,10 @@ import numpy as np
 
 class ControllerBase(abc.ABC):
     @abc.abstractmethod
+    def read_config(self, config_name: str):
+        pass
+
+    @abc.abstractmethod
     def build(self):
         pass
 
