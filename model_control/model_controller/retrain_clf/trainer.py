@@ -1,9 +1,8 @@
 import torch
-import torch.nn as nn
-import torch.optim as optim
 
 
 def train_one_epoch(model, optimizer, loss_func, train_loader):
+    model.train()
     running_loss = 0
     for batch_idx, (x, y) in enumerate(train_loader):
         out = model(x)
@@ -16,6 +15,7 @@ def train_one_epoch(model, optimizer, loss_func, train_loader):
 
 
 def valid_one_epoch(model, loss_func, valid_loader):
+    model.eval()
     running_loss = 0
     with torch.no_grad():
         for batch_idx, (x, y) in enumerate(valid_loader):
@@ -32,7 +32,9 @@ def show_progress(epoch, epochs, period_show, train_loss=[], valid_loss=[], verb
     return None
 
 
-def train(epochs, model, optimizer, loss_func, train_loader, valid_loader=None, train_loss=[], valid_loss=[], verbose=1, period_show=1):
+def train(epochs, model, optimizer, loss_func, train_loader, valid_loader=None, verbose=1, period_show=1):
+    train_loss = []
+    valid_loss = []
     for epoch in range(epochs):
         if valid_loader is not None:
             running_loss_valid = valid_one_epoch(
@@ -45,30 +47,4 @@ def train(epochs, model, optimizer, loss_func, train_loader, valid_loader=None, 
                       valid_loss, verbose=verbose)
     print()
     print("Training finished !")
-    return None
-
-
-if __name__ == "__main__":
-    import numpy as np
-    from make_data_loader import get_loader
-    from test_model import ModelMonitor
-    model = ModelMonitor()
-
-    n_sample = 30
-    input_size = 51200
-
-    train_x = np.random.random((n_sample, input_size))
-    train_y = np.random.random(n_sample,)
-    train_loader = get_loader(train_x, train_y, config={
-        "batch_size": 15})
-
-    valid_x = np.random.random((n_sample, input_size))
-    valid_y = np.random.random(n_sample,)
-    valid_loader = get_loader(
-        valid_x, valid_y, config={"batch_size": 15})
-
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
-    loss_func = nn.CrossEntropyLoss()
-
-    train(epochs=10, model=model, optimizer=optimizer, loss_func=loss_func,
-          train_loader=train_loader, valid_loader=None, train_loss=[], valid_loss=[], verbose=1, period_show=1)
+    return train_loss, valid_loss

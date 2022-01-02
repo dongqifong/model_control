@@ -15,6 +15,8 @@ if __name__ == "__main__":
 
     model_controller = ModelController(train_x, train_y, valid_x, valid_y)
     model_controller.build()
+    model_controller.load_weight(
+        "test_model_state_dict.pth")
     model_controller.compile({"model_name": "test_model"})
     model_controller.train(5)
     y_pred = model_controller.predict(train_x, batch_size=5)

@@ -2,7 +2,6 @@ import numpy as np
 import torch
 
 from .make_data_loader import get_loader
-from .test_model import ModelMonitor
 
 
 def predict(model, x: np.ndarray, batch_size=1):
@@ -17,13 +16,3 @@ def predict(model, x: np.ndarray, batch_size=1):
             y_out = out.argmax(dim=-1)
             y_pred.append(y_out.numpy())
     return np.concatenate(y_pred, axis=0)
-
-
-if __name__ == "__main__":
-    n_sample = 30
-    input_size = 51200
-    test_x = np.random.random((n_sample, input_size))
-
-    model = ModelMonitor()
-    y_pred = predict(model, x=test_x, batch_size=5)
-    print(y_pred)
