@@ -20,7 +20,7 @@ class ModelDataset(Dataset):
 
 
 def get_loader(x, y, config={}):
-    shuffle = config["shuffle"] if "shuffle" in config.keys() else True
+    shuffle = config["shuffle"] if "shuffle" in config.keys() else False
     batch_size = config["batch_size"] if "batch_size" in config.keys() else 1
     dataset = ModelDataset(x, y)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)

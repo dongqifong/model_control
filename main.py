@@ -14,13 +14,14 @@ if __name__ == "__main__":
     valid_y = np.random.choice(2, n_sample)
 
     model_controller = ModelController(train_x, train_y, valid_x, valid_y)
+    model_controller.read_config("config.json")
     model_controller.build()
-    model_controller.load_weight(
-        "test_model_state_dict.pth")
-    model_controller.compile({"model_name": "test_model"})
+    # model_controller.load_weight(
+    #     "test_model_state_dict.pth")
+    model_controller.compile(model_name="test_model_name")
     model_controller.train(5)
     y_pred = model_controller.predict(train_x, batch_size=5)
-    # model_controller.save()
+    model_controller.save()
     score = model_controller.evaluate(train_y, y_pred)
 
     print(model_controller.model_name)

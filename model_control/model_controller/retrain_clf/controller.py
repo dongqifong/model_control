@@ -1,4 +1,6 @@
 from pathlib import Path
+import json
+from typing import KeysView
 
 import numpy as np
 import torch
@@ -26,8 +28,26 @@ class ModelController(ControllerBase):
         self.train_loss = []
         self.valid_loss = []
         self.model_name = "dafault_model_name"
+        self.model_config = {}
+        self.compile_config = {}
 
-    def build(self, model_config=None):
+    def read_config(self, config_name: str):
+        config_root_dir = Path.cwd() / "model_control/configs/retrain_clf"
+        config_path = config_root_dir / config_name
+        with open(config_path) as f:
+            config_all = json.load(f)
+        self.model_config = config_all["model_config"]
+        self.compile_config = config_all["compile_config"]
+        print(self.model_config)
+        print(self.compile_config)
+        return None
+
+    def build(self, model_config=None, **kwargs):
+        if model_config is None:
+            model_config = self.model_config
+
+        model_config.update(kwargs)
+
         self.model = ModelMonitor(model_config)
         return None
 
@@ -37,23 +57,24 @@ class ModelController(ControllerBase):
         self.model.load_state_dict(torch.load(model_path))
         return None
 
-    def compile(self, config={}):
-        lr = 1e-4 if "lr" not in config.keys() else config["lr"]
+    def compile(self, config=None, **kwargs):
+        if config is None:
+            config = self.compile_config
+
+        config.update(kwargs)
+
+        lr = config["lr"]
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
         self.loss_func = nn.CrossEntropyLoss()
 
-        loader_config = {}
-        loader_config["batch_size"] = 1 if "batch_size" not in config.keys(
-        ) else config["batch_size"]
-        loader_config["shuffle"] = True if "shuffle" not in config.keys(
-        ) else config["shuffle"]
-        self.train_loader = get_loader(self.train_x, self.train_y)
+        self.train_loader = get_loader(self.train_x, self.train_y, config)
+
         if self.valid_x is not None and self.valid_y is not None:
             self.valid_loader = get_loader(
                 self.valid_x, self.valid_y)
 
-        if "model_name" in config.keys():
-            self.model_name = config["model_name"]
+        self.model_name = config["model_name"]
+
         return None
 
     def train(self, epochs=1, verbose=1, period_show=1):
