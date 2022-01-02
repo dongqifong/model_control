@@ -1,5 +1,18 @@
+from pathlib import Path
+import json
+
 import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
 from ..abs_model_controller import ControllerBase
+from .make_data_loader import get_loader
+from . import trainer
+from . import predictor
+from . import saver
+from ...models.retrain_clf.model import ModelMonitor
+from ...evaluation.metrics import MCC
 
 
 class ModelController(ControllerBase):
@@ -14,31 +27,45 @@ class ModelController(ControllerBase):
         self.train_loss = []
         self.valid_loss = []
         self.model_name = "dafault_model_name"
+        self.model_config = {}
+        self.compile_config = {}
 
-    def build(self, model_config=None):
+    def read_config(self, config_name: str):
+        # read config for model and compiling
         # return: None
-        pass
+        return None
+
+    def build(self, **kwargs):
+        # build model with respective to model config
+        # return: None
+        return None
 
     def load_weight(self, model_path: str):
+        # load exsisted model weights
         # return: None
-        pass
+        return None
 
-    def compile(self, config={}):
+    def compile(self, **kwargs):
+        # load training config
         # return: None
-        pass
+        return None
 
     def train(self, epochs=1, verbose=1, period_show=1):
+        # training process
         # return: None
-        pass
+        return None
 
     def predict(self, x: np.ndarray, batch_size=1):
-        # return: predicted value(np.ndarray)
+        # predict output
+        # return: y_pred(np.ndarray)
         pass
 
     def save(self):
+        # save model
         # return: None
-        pass
+        return None
 
     def evaluate(self, y_true: np.ndarray, y_pred: np.ndarray):
-        # return: metrics score
+        # calculate metrics
+        # return metrics's score
         pass

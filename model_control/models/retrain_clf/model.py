@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class ModelMonitor(nn.Module):
-    def __init__(self, config=None) -> None:
+    def __init__(self, config={}) -> None:
         super().__init__()
         self.config = {}
         self.config["input_size"] = 51200
@@ -14,8 +14,7 @@ class ModelMonitor(nn.Module):
         self.config["padding"] = 0
         self.config["dropout_p"] = 0.3
 
-        self.config = self._update_config(
-            default_config=self.config, user_config=config)
+        self.config.update(config)
 
         input_size = self.config["input_size"]
         in_channels = self.config["in_channels"]
@@ -54,26 +53,3 @@ class ModelMonitor(nn.Module):
         for m in module_list:
             x = m(x)
         return x.shape
-
-    @ staticmethod
-    def _update_config(default_config, user_config):
-        if user_config is None:
-            return default_config
-        for key in user_config.keys():
-            if key in default_config.keys():
-                default_config[key] = user_config[key]
-        return default_config
-
-
-if __name__ == "__main__":
-    config = {}
-    config["out_channels"] = 32
-    model = ModelMonitor(config=config)
-
-    batch_size = 2
-    input_channels = 1
-    input_size = 51200
-
-    x = torch.randn((batch_size, input_channels, input_size))
-    out = model(x)
-    print(out.shape)

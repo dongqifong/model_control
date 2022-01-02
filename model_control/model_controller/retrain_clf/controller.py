@@ -1,6 +1,5 @@
 from pathlib import Path
 import json
-from typing import KeysView
 
 import numpy as np
 import torch
@@ -38,17 +37,11 @@ class ModelController(ControllerBase):
             config_all = json.load(f)
         self.model_config = config_all["model_config"]
         self.compile_config = config_all["compile_config"]
-        print(self.model_config)
-        print(self.compile_config)
         return None
 
-    def build(self, model_config=None, **kwargs):
-        if model_config is None:
-            model_config = self.model_config
-
-        model_config.update(kwargs)
-
-        self.model = ModelMonitor(model_config)
+    def build(self, **kwargs):
+        self.model_config.update(kwargs)
+        self.model = ModelMonitor(self.model_config)
         return None
 
     def load_weight(self, model_path: str):
@@ -57,23 +50,23 @@ class ModelController(ControllerBase):
         self.model.load_state_dict(torch.load(model_path))
         return None
 
-    def compile(self, config=None, **kwargs):
-        if config is None:
-            config = self.compile_config
-
-        config.update(kwargs)
-
-        lr = config["lr"]
+    def compile(self, **kwargs):
+        self.compile_config.update(kwargs)
+        if "lr" not in self.compile_config.keys():
+            lr = 1e-4
+        else:
+            lr = self.compile_config["lr"]
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
         self.loss_func = nn.CrossEntropyLoss()
 
-        self.train_loader = get_loader(self.train_x, self.train_y, config)
+        self.train_loader = get_loader(
+            self.train_x, self.train_y, self.compile_config)
 
         if self.valid_x is not None and self.valid_y is not None:
             self.valid_loader = get_loader(
                 self.valid_x, self.valid_y)
 
-        self.model_name = config["model_name"]
+        self.model_name = self.compile_config["model_name"]
 
         return None
 
@@ -81,7 +74,7 @@ class ModelController(ControllerBase):
         train_loss, valid_loss = trainer.train(epochs=epochs, model=self.model, optimizer=self.optimizer, loss_func=self.loss_func,
                                                train_loader=self.train_loader, valid_loader=self.valid_loader, verbose=verbose, period_show=period_show)
         self.train_loss = self.train_loss + train_loss
-        if valid_loss is not None:
+        if len(valid_loss) > 0:
             self.valid_loss = self.valid_loss + valid_loss
         return None
 

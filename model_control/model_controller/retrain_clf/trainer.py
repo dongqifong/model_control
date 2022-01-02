@@ -36,13 +36,16 @@ def train(epochs, model, optimizer, loss_func, train_loader, valid_loader=None, 
     train_loss = []
     valid_loss = []
     for epoch in range(epochs):
+
         if valid_loader is not None:
             running_loss_valid = valid_one_epoch(
                 model, loss_func, valid_loader)
             valid_loss.append(running_loss_valid)
+
         running_loss_train = train_one_epoch(
             model, optimizer, loss_func, train_loader)
         train_loss.append(running_loss_train)
+
         show_progress(epoch, epochs, period_show, train_loss,
                       valid_loss, verbose=verbose)
     print()
