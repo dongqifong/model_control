@@ -6,13 +6,13 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from ..abs_model_controller import ControllerBase
-from .make_data_loader import get_loader
-from . import trainer
-from . import predictor
-from . import saver
-from ...models.retrain_clf.model import ModelMonitor
-from ...evaluation.metrics import MCC
+from model_control.models.abs_model_controller import ControllerBase
+from model_control.models.retrain_clf.make_data_loader import get_loader
+from model_control.models.retrain_clf import trainer
+from model_control.models.retrain_clf import predictor
+from model_control.models.retrain_clf import saver
+from model_control.models.retrain_clf.model import ModelMonitor
+from model_control.evaluation.metrics import MCC
 
 
 class ModelController(ControllerBase):
@@ -82,7 +82,7 @@ class ModelController(ControllerBase):
         y_pred = predictor.predict(self.model, x=x, batch_size=batch_size)
         return y_pred
 
-    def save(self):
+    def save(self, verbose=1):
         saver.save(self.model, self.model_name)
         return None
 

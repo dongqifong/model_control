@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from .make_data_loader import get_loader
+from model_control.models.retrain_clf.make_data_loader import get_loader
 
 
 def predict(model, x: np.ndarray, batch_size=1):
