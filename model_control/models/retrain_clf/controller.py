@@ -83,7 +83,7 @@ class ModelController(ControllerBase):
         return y_pred
 
     def save(self, verbose=1):
-        saver.save(self.model, self.model_name)
+        saver.save(self.model, self.model_name, verbose)
         return None
 
     def evaluate(self, y_true: np.ndarray, y_pred: np.ndarray):
